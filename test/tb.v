@@ -46,4 +46,30 @@ module tb ();
       .rst_n  (rst_n)     // not reset
   );
 
+  // Second, independent instance of cordic_core (same unmodified
+  // cordic_core.v) wired straight to its own top-level pins, for
+  // core-level cocotb tests that drive the datapath directly instead of
+  // through the tt_um_joel0328 register-map wrapper. This instance is
+  // test-only scaffolding — it has no bearing on the tapeout netlist,
+  // which only instantiates cordic_core once, inside user_project.
+  reg               core_start;
+  reg               core_mode;
+  reg  signed [15:0] core_x_in, core_y_in, core_z_in;
+  wire               core_done;
+  wire signed [15:0] core_x_out, core_y_out, core_z_out;
+
+  cordic_core cordic_core_dut (
+      .clk    (clk),
+      .rst_n  (rst_n),
+      .start  (core_start),
+      .mode   (core_mode),
+      .x_in   (core_x_in),
+      .y_in   (core_y_in),
+      .z_in   (core_z_in),
+      .done   (core_done),
+      .x_out  (core_x_out),
+      .y_out  (core_y_out),
+      .z_out  (core_z_out)
+  );
+
 endmodule

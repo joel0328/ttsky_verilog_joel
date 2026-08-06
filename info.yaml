@@ -18,36 +18,37 @@ project:
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
     - "project.v"
+    - "cordic_core.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
 pinout:
   # Inputs
-  ui[0]: ""
-  ui[1]: ""
-  ui[2]: ""
-  ui[3]: ""
-  ui[4]: ""
-  ui[5]: ""
-  ui[6]: ""
-  ui[7]: ""
+  ui[0]: "WDATA[0] - register write data"
+  ui[1]: "WDATA[1] - register write data"
+  ui[2]: "WDATA[2] - register write data"
+  ui[3]: "WDATA[3] - register write data"
+  ui[4]: "WDATA[4] - register write data"
+  ui[5]: "WDATA[5] - register write data"
+  ui[6]: "WDATA[6] - register write data"
+  ui[7]: "WDATA[7] - register write data"
 
   # Outputs
-  uo[0]: ""
-  uo[1]: ""
-  uo[2]: ""
-  uo[3]: ""
-  uo[4]: ""
-  uo[5]: ""
-  uo[6]: ""
-  uo[7]: ""
+  uo[0]: "RDATA[0] - addressed register readback"
+  uo[1]: "RDATA[1] - addressed register readback"
+  uo[2]: "RDATA[2] - addressed register readback"
+  uo[3]: "RDATA[3] - addressed register readback"
+  uo[4]: "RDATA[4] - addressed register readback"
+  uo[5]: "RDATA[5] - addressed register readback"
+  uo[6]: "RDATA[6] - addressed register readback"
+  uo[7]: "RDATA[7] - addressed register readback"
 
   # Bidirectional pins
-  uio[0]: ""
-  uio[1]: ""
-  uio[2]: ""
-  uio[3]: ""
-  uio[4]: ""
+  uio[0]: "ADDR[0] - register address"
+  uio[1]: "ADDR[1] - register address"
+  uio[2]: "ADDR[2] - register address"
+  uio[3]: "ADDR[3] - register address"
+  uio[4]: "WE - write enable, edge-detected"
   uio[5]: ""
   uio[6]: ""
   uio[7]: ""
