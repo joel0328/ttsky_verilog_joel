@@ -47,6 +47,14 @@ ADDR_STATUS = 0xE
 
 WE_BIT = 1 << 4
 
+# Gate-level netlists flatten cordic_core into tt_um_joel0328 during
+# synthesis, so the standalone cordic_core_dut instance in tb.v (and its
+# feeder regs/wires) is compiled out under `GL_TEST (see tb.v). Core-level
+# tests that poke that instance directly can only run in RTL sim; the
+# wrapper-level tests still exercise the same logic through the real pins
+# and must run in both modes.
+GATES = os.environ.get("GATES") == "yes"
+
 
 def to_signed16(v: int) -> int:
     v &= 0xFFFF
@@ -66,11 +74,12 @@ async def reset(dut):
     dut.ena.value = 1
     dut.ui_in.value = 0
     dut.uio_in.value = 0
-    dut.core_start.value = 0
-    dut.core_mode.value = 0
-    dut.core_x_in.value = 0
-    dut.core_y_in.value = 0
-    dut.core_z_in.value = 0
+    if not GATES:
+        dut.core_start.value = 0
+        dut.core_mode.value = 0
+        dut.core_x_in.value = 0
+        dut.core_y_in.value = 0
+        dut.core_z_in.value = 0
     await ClockCycles(dut.clk, 5)
     dut.rst_n.value = 1
     await ClockCycles(dut.clk, 2)
@@ -202,7 +211,7 @@ VEC_EDGE_VECTORS = [
 # 1. Core-level tests
 # ----------------------------------------------------------------------
 
-@cocotb.test()
+@cocotb.test(skip=GATES)
 async def test_core_rotation_matches_model(dut):
     """cordic_core, driven directly: rotate mode must match
     cordic_rotate() exactly, not just within tolerance."""
@@ -221,7 +230,7 @@ async def test_core_rotation_matches_model(dut):
         )
 
 
-@cocotb.test()
+@cocotb.test(skip=GATES)
 async def test_core_vectoring_matches_model(dut):
     """cordic_core, driven directly: vector mode must match
     cordic_vector() exactly, including x=0 and operand-extreme edges."""

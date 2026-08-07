@@ -52,6 +52,13 @@ module tb ();
   // through the tt_um_joel0328 register-map wrapper. This instance is
   // test-only scaffolding — it has no bearing on the tapeout netlist,
   // which only instantiates cordic_core once, inside user_project.
+  //
+  // Gate-level sim compiles a flattened netlist for tt_um_joel0328 where
+  // cordic_core no longer exists as a separate module (synthesis folds it
+  // into the top level), so this standalone instance — and the regs/wires
+  // that feed it — must be excluded from GL_TEST builds or elaboration
+  // fails with "Unknown module type: cordic_core".
+`ifndef GL_TEST
   reg               core_start;
   reg               core_mode;
   reg  signed [15:0] core_x_in, core_y_in, core_z_in;
@@ -71,5 +78,6 @@ module tb ();
       .y_out  (core_y_out),
       .z_out  (core_z_out)
   );
+`endif
 
 endmodule
