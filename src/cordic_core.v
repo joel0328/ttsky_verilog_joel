@@ -57,8 +57,14 @@ module cordic_core (
   localparam N_ITER = 16;             // CORDIC iterations
   localparam ITER_W = 4;              // ceil(log2(N_ITER)), counts 0..15
 
+  // N_ITER-1 needs ITER_W+1 bits to compute (16-1 doesn't fit in 4 bits
+  // mid-subtraction) but the result (15) does, so compute one bit wide,
+  // then take the low ITER_W bits explicitly rather than let an
+  // implicit truncation happen on the localparam assignment.
+  localparam [ITER_W:0]   N_ITER_LESS_1 = N_ITER - 1;
+  localparam [ITER_W-1:0] ITER_LAST     = N_ITER_LESS_1[ITER_W-1:0];
+
   localparam MODE_ROT = 1'b0;
-  localparam MODE_VEC = 1'b1;
 
   // Rotation-mode x seed: round((2^14 << GUARD) / K), K = CORDIC gain
   localparam signed [IWIDTH-1:0] INV_K_SEED = 19'sd79594;
@@ -101,9 +107,17 @@ module cordic_core (
   // unbounded-int add.
   function automatic signed [WIDTH-1:0] round_out(input signed [IWIDTH-1:0] v);
     reg signed [IWIDTH:0] sum;
+    // Same width as `sum` so the shift assignment below needs no implicit
+    // truncation; only the low WIDTH bits are read afterward (the wrap
+    // to WIDTH bits is intentional, mirroring the model's _wrap()), so
+    // the upper guard-width bits are deliberately unread.
+    /* verilator lint_off UNUSEDSIGNAL */
+    reg signed [IWIDTH:0] shifted;
+    /* verilator lint_on UNUSEDSIGNAL */
     begin
       sum       = {v[IWIDTH-1], v} + ROUND_CONST;
-      round_out = sum >>> GUARD;  // truncated to WIDTH bits on assignment
+      shifted   = sum >>> GUARD;
+      round_out = shifted[WIDTH-1:0];  // explicit truncation to WIDTH bits
     end
   endfunction
 
@@ -238,7 +252,7 @@ module cordic_core (
           x_reg <= x_next;
           y_reg <= y_next;
           z_reg <= z_next;
-          if (iter_cnt == N_ITER - 1) begin
+          if (iter_cnt == ITER_LAST) begin
             state <= S_DONE;
           end else begin
             iter_cnt <= iter_cnt + 1'b1;
